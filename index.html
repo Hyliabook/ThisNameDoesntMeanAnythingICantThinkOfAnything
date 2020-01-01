@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body{
+                background-color: cornflowerblue;
+            }
+
+            @font-face {
+                font-family: komika;
+                src: url("komika.ttf");
+             }
+
+            .letter
+            {
+                font-family: komika;
+                font-size: 75px;
+                fill: lime;
+                stroke: black;
+                stroke-width: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <svg id = "ctx" width="2000" height = "2000" xmlns="http://www.w3.org/2000/svg">
+        </svg>
+
+        <script>
+        let ctx = document.querySelector("#ctx");
+
+        const svgNS = "http://www.w3.org/2000/svg";
+
+        const ARROW_WIDTH = 53 * 1.8;
+        const ARROW_HEIGHT = 30 * 1.8;
+
+        let cipher = 6;
+        
+        let letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+
+        const originalLetters = [(3+cipher) % letters.length, (20+cipher) % letters.length,
+        (12+cipher) % letters.length,(1+cipher) % letters.length,(2+cipher) % letters.length,
+        (0+cipher) % letters.length,(19+cipher) % letters.length];
+
+        let currentLetters = originalLetters.slice();
+
+            
+
+Number.prototype.mod = function(n) {
+    return ((this%n)+n)%n;
+};
+
+            window.onload = setUp;
+
+            function setUp()
+            {
+                drawArrows();
+                drawButton();
+            }
+
+        function drawArrows()
+        {
+
+            let xPos = 80;
+            let yPos = 100;
+
+            let gap = 200;
+            let spacing = ARROW_WIDTH + 10;
+
+            for(let x=0;x<7;x++)
+            {
+                let arrowUp = document.createElementNS(svgNS, "image");
+                let arrowDown = document.createElementNS(svgNS, "image");
+
+                arrowUp.setAttributeNS(null, "href", "arrowUp.png");
+                arrowDown.setAttributeNS(null, "href", "arrowDown.png");
+                arrowUp.setAttributeNS(null,"x", xPos.toString());
+                arrowDown.setAttributeNS(null, "x", xPos.toString());
+                arrowUp.setAttributeNS(null, "y", yPos.toString());
+                arrowDown.setAttributeNS(null, "y", (yPos + gap).toString());
+                arrowUp.setAttributeNS(null, "class", "upArrow");
+                arrowDown.setAttributeNS(null, "class", "downArrow");
+                arrowUp.setAttributeNS(null, "place", x.toString());
+                arrowDown.setAttributeNS(null, "place", x.toString());
+
+                arrowDown.onclick = clickArrow;
+                arrowUp.onclick = clickArrow;
+
+                ctx.appendChild(arrowUp);
+                ctx.appendChild(arrowDown);
+
+                let char = document.createElementNS(svgNS, "text");
+                    char.setAttributeNS(null,"class","letter");
+                    char.setAttributeNS(null, "id", "letter" + x.toString());
+                    char.setAttributeNS(null, "x", xPos + ARROW_WIDTH /4);
+                    char.setAttributeNS(null, "y", yPos + ARROW_HEIGHT + (gap / 2))
+                    char.innerHTML = letters[currentLetters[x]];
+
+                    ctx.appendChild(char);
+
+                    xPos += spacing;
+            }
+        }
+
+        function drawButton()
+        {
+            let reset = document.createElementNS(svgNS, "image");
+
+            let xPos = (80 + ((3 * (ARROW_WIDTH + 200)) + ((ARROW_WIDTH+200) / 2))) / 3;
+            let yPos = 300 + (ARROW_HEIGHT * 2);
+            reset.setAttributeNS(null, "href", "reset.png");
+            reset.setAttributeNS(null, "x", xPos);
+            reset.setAttributeNS(null, "y", yPos);
+            reset.setAttributeNS(null, "width", "200");
+            reset.setAttributeNS(null, "height", "100");
+
+            reset.onclick = clickReset;
+
+            ctx.appendChild(reset);
+        }
+
+        function clickArrow(e)
+        {
+            let arrow = e.target;
+            let shift = 0;
+            let place = parseInt(e.target.getAttributeNS(null, "place"));
+            let currentLetter = document.querySelector("#letter" + place.toString());
+
+            if(arrow.getAttributeNS(null, "class") == "downArrow")
+                shift = 1;
+
+            if(arrow.getAttributeNS(null, "class") == "upArrow")
+                shift = -1;
+
+            currentLetters[place] += shift;
+
+            console.log("B: " + currentLetters[place]);
+            
+            if(currentLetters[place] < 0)
+                currentLetters[place] = letters.length + currentLetters[place];
+            
+                console.log("A: " + currentLetters[place]);
+
+            currentLetter.innerHTML = letters[currentLetters[place] % letters.length];
+            
+        }
+
+        function clickReset(e)
+        {
+
+            console.log("Reset Clicked");
+            currentLetters = originalLetters.slice();
+
+            console.log(currentLetters);
+
+            for(let x=0;x<currentLetters.length;x++){
+                let currentChar = document.querySelector("#letter" + x.toString());
+                currentChar.innerHTML = letters[currentLetters[x]];
+                console.log(currentChar);
+            }
+        }
+        
+        </script>
+    </body>
+</html>
